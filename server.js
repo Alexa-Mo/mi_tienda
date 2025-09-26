@@ -5,13 +5,14 @@ import { open } from "sqlite";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import orderMailRouter from "./orderMail.js";
+import path from "path";
 
-const app = express(); // Primero inicializamos Express
-const PORT = 3001;
+const app = express();
+const PORT = process.env.PORT || 3001;
 
-// Activar CORS para que el frontend pueda comunicarse
+// Activar CORS (ajusta origin al dominio real de tu frontend en Render)
 app.use(cors({
-  origin: "http://localhost:5179", // el puerto donde corre Vite
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
   methods: ["GET", "POST"],
   credentials: true
 }));
@@ -26,7 +27,7 @@ let db;
 // Inicializar SQLite
 (async () => {
   db = await open({
-    filename: "./users.db",
+    filename: process.env.SQLITE_PATH || path.join("/tmp", "users.db"),
     driver: sqlite3.Database
   });
   await db.exec(`
@@ -64,6 +65,12 @@ app.post("/api/login", async (req, res) => {
   } catch (err) {
     res.json({ success: false, message: "Error en el servidor" });
   }
+});
+
+// Servir frontend compilado
+app.use(express.static(path.join(process.cwd(), "dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(process.cwd(), "dist", "index.html"));
 });
 
 app.listen(PORT, () => {
