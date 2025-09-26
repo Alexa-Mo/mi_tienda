@@ -30,7 +30,7 @@ app.use("/api", orderMailRouter);
 let db;
 (async () => {
   db = await open({
-    filename: "./users.db",
+    filename: path.join(__dirname, "users.db"), // 🔹 aseguramos ruta absoluta
     driver: sqlite3.Database
   });
   await db.exec(`
@@ -77,6 +77,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-app.listen(PORT, () => {
+// 🔹 Escuchar en 0.0.0.0 (requerido en Render)
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
