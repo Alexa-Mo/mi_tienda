@@ -70,12 +70,12 @@ app.post("/api/login", async (req, res) => {
 });
 
 // Servir frontend compilado
-app.use(express.static(path.join(__dirname, "dist")));
+//app.use(express.static(path.join(__dirname, "dist")));
 
 // Ruta fallback para React Router
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
+//app.get("*", (req, res) => {
+//  res.sendFile(path.join(__dirname, "dist", "index.html"));
+//});
 
 // 🔹 Escuchar en 0.0.0.0 (requerido en Render)
 app.listen(PORT, "0.0.0.0", () => {
