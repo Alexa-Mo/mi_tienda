@@ -1,33 +1,36 @@
 import 'dotenv/config';
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import orderMailRouter from "./orderMail.js";
-import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Activar CORS (ajusta origin al dominio real de tu frontend en Render)
+// Paths absolutos para __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// CORS (ajusta el dominio del frontend cuando despliegues)
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: "*",
   methods: ["GET", "POST"],
   credentials: true
 }));
 
 app.use(express.json());
 
-// Ruta para enviar correo de compra
+// API
 app.use("/api", orderMailRouter);
 
 let db;
-
-// Inicializar SQLite
 (async () => {
   db = await open({
-    filename: process.env.SQLITE_PATH || path.join("/tmp", "users.db"),
+    filename: "./users.db",
     driver: sqlite3.Database
   });
   await db.exec(`
@@ -39,7 +42,7 @@ let db;
   `);
 })();
 
-// Registro
+// Rutas de auth
 app.post("/api/register", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -51,7 +54,6 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Login
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -68,9 +70,11 @@ app.post("/api/login", async (req, res) => {
 });
 
 // Servir frontend compilado
-app.use(express.static(path.join(process.cwd(), "dist")));
+app.use(express.static(path.join(__dirname, "dist")));
+
+// Ruta fallback para React Router
 app.get("*", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 app.listen(PORT, () => {
