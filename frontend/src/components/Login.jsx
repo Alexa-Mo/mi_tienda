@@ -25,7 +25,7 @@ const Login = ({ onLogin }) => {
 
     try {
       // Apuntando al puerto del backend
-      const res = await fetch(`https://mi-backend.onrender.com/api/${isRegister ? 'register' : 'login'}`, {
+      const res = await fetch(`https://mi-backend-q9ks.onrender.com/api/${isRegister ? 'register' : 'login'}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
